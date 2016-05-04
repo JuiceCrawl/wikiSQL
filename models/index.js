@@ -20,8 +20,12 @@ var Page = db.define('page', {
     type:Sequelize.DATE,
     defaultValue: Sequelize.NOW
   },
-  status: Sequelize.ENUM('open', 'closed')
-},{
+  status: {
+    type:Sequelize.ENUM('open', 'closed'),
+    defaultValue: 'open'
+    }
+  },
+  {
   getterMethods: {
     route: function(){
       return '/wiki/' + this.getDataValue('urlTitle');

@@ -19,35 +19,51 @@ router.get('/', function(req, res){
 
 router.post('/', function(req, res){
 
-  var user = User.build({
-    name: req.body.name,
-    email: req.body.email
-  });
+  // var user = User.build({
+  //   name: req.body.name,
+  //   email: req.body.email
+  // });
 
-  var page = Page.build({
-    title: req.body.title,
-    content: req.body.content,
-    date: req.body.date,
-    status: req.body.status
-  });
+  // var page = Page.build({
+  //   title: req.body.title,
+  //   content: req.body.content,
+  //   date: req.body.date,
+  //   status: req.body.status
+  // });
 
-  user.save()
-  .then(function(){
-    return page.save()
+  User.findOrCreate({
+    where: {
+      name: req.body.name,
+      email: req.body.email
+    }
   })
-  .then(function(savedPage){
-      return savedPage.setAuthor(user);
-    })
-  .then(function(savedPage){
-      res.redirect(savedPage.route);
-    })
-     
+  .then(function (values) {
+
+    var user = values[0];
+
+    var page = Page.build({
+      title: req.body.title,
+      content: req.body.content
+    });
+
+    return page.save().then(function (page) {
+      return page.setAuthor(user);
+    });
+
+})
+.then(function (page) {
+  res.redirect(page.route);
+})
+  // user.save()
   // .then(function(){
-  //   return user.save();
+  //   return page.save()
   // })
-  // .then(function(data){
-  //   res.redirect('/wiki');
-  // })
+  // .then(function(savedPage){
+  //     return savedPage.setAuthor(user);
+  //   })
+  // .then(function(savedPage){
+  //     res.redirect(savedPage.route);
+  //   })
   .catch(function(err){
     console.error(err);
   });
