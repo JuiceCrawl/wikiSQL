@@ -1,23 +1,24 @@
-//'use strict';
+'use strict';
 
 var logger = require('morgan');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var routes = require('./routes/index.js');
 var swig = require('swig');
+
+var routes = require('./routes/index.js');
+var wikiRouter = require('./routes/wiki');
 
 var models = require('./models');
 
-// ... other stuff
 
-models.User.sync({})
+models.User.sync()
 .then(function () {
-    return models.Page.sync({});
+    return models.Page.sync();
 })
 .then(function () {
-    app.listen(3001, function () {
-        console.log('Server is listening on port 3001!');
+    app.listen(3000, function () {
+        console.log('Server is listening on port 3000!');
     });
 })
 .catch(console.error);
@@ -33,8 +34,12 @@ app.engine('html', swig.renderFile);
 // turn of swig's caching
 swig.setDefaults({cache: false});
 
+app.use(express.static('public'));
+
+app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(logger('tiny'));
 
-app.use('/', routes);
+app.use('/wiki', wikiRouter);
+// or, in one line: app.use('/wiki', require('./routes/wiki'));
 
